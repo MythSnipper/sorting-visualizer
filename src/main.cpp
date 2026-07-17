@@ -45,7 +45,7 @@ int main(int argc, char** argv){
         resosize, 
         resosize, 
         resosize, //8
-        resosize, 
+        resosize/4, 
         8, 
         resosize, 
     };

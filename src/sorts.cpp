@@ -372,8 +372,20 @@ void comb_sort(Visualizer& v, std::vector<int>& arr){
     int n = arr.size();
 
     int combsize = comb_sort_get_next_combsize(n);
-    
 
+    //comb until size is 1
+    while(combsize != 1){
+        //comb
+        comb_sort_comb(v, arr, combsize);
+        //get new size
+        combsize = comb_sort_get_next_combsize(combsize);
+    }
+    bool sorted = false;
+    //while not sorted comb with size 1 until it is sorted
+    while(!sorted){
+        //comb
+        sorted = comb_sort_comb(v, arr, 1);
+    }
 }
 int comb_sort_get_next_combsize(int combsize){ //returns the next comb size
     int newsize = (int)((float)combsize) / 1.3f;
@@ -381,8 +393,22 @@ int comb_sort_get_next_combsize(int combsize){ //returns the next comb size
     return (int)(newsize);
 }
 bool comb_sort_comb(Visualizer& v, std::vector<int>& arr, int combsize){ //returns true if no swaps made
-    //combs vel's hair once
+    int n = arr.size();
+    bool sorted = true;
 
+    //combs the array once
+    for(int i=0;i<n-combsize;i++){
+        //compare arr[i] and arr[i+combsize]
+        bool ifcond = arr[i] > arr[i+combsize];
+        v.displayArrayD(arr, i, i+combsize, v.read_color);
+        if(ifcond){
+            //swap
+            std::swap(arr[i], arr[i+combsize]);
+            v.displayArrayD(arr, i, i+combsize, v.write_color);
+            sorted = false;
+        }
+    }
+    return sorted;
 }
 
 
