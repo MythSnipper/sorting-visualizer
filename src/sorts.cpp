@@ -1,0 +1,437 @@
+#include <sorts.hpp>
+
+#include <main.hpp>
+
+
+//sorts
+void selection_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=0;i<n-1;i++){
+        int min_I = i;
+        //find index of smallest
+        for(int j=i+1;j<n;j++){
+            bool ifcond = arr[j] < arr[min_I];
+            v.displayArrayD(arr, j, min_I, v.read_color);
+            if(ifcond){
+                min_I = j;
+            }
+        }
+
+        //swap
+        std::swap(arr[i], arr[min_I]);
+        v.displayArrayD(arr, i, min_I, v.write_color);
+    }
+}
+
+void double_selection_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=0;i<n/2;i++){
+        int min_I = i;
+        int max_I = i;
+        //find index of smallest and largest
+        for(int j=i+1;j<=n-1-i;j++){
+            bool if1cond = arr[j] < arr[min_I];
+            v.displayArrayD(arr, j, min_I, v.read_color);
+            if(if1cond){
+                min_I = j;
+            }
+
+            bool if2cond = arr[j] > arr[max_I];
+            v.displayArrayD(arr, j, max_I, v.read_color);
+            if(if2cond){
+                max_I = j;
+            }
+        }
+
+        //swap
+        std::swap(arr[i], arr[min_I]);
+        v.displayArrayD(arr, i, min_I, v.write_color);
+
+        max_I = (max_I == i) ? min_I : max_I;
+        std::swap(arr[n-1-i], arr[max_I]);
+        v.displayArrayD(arr, n-1-i, max_I, v.write_color);
+
+    }
+}
+
+void insertion_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=1;i<n;i++){
+        int key = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
+        int j = i-1;
+
+        while(1){
+            bool whilecond = (j >= 0 && arr[j] > key);
+            v.displayArrayS(arr, j, v.read_color);
+            if(!whilecond)break; //while loop condition
+
+            arr[j+1] = arr[j];
+            v.displayArrayS(arr, j, v.read_color);
+            v.displayArrayS(arr, j+1, v.write_color);
+            j--;
+        }
+        arr[j+1] = key;
+        v.displayArrayS(arr, j+1, v.write_color);
+    }
+}
+
+void binary_insertion_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=1;i<n;i++){
+        int key = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
+
+        //sorted portion is 0 to i-1, binary search on that
+        int min_I = 0;
+        int max_I = i;
+        while(min_I < max_I){
+            int mid_I = min_I + ((max_I - min_I)/2);
+
+            bool ifcond = arr[mid_I] <= key;
+            v.displayArrayS(arr, mid_I, v.read_color);
+            if(ifcond){
+                min_I = mid_I + 1;
+            }
+            else{
+                max_I = mid_I;
+            }
+
+            mid_I = min_I + ((max_I - min_I)/2);
+        }
+
+        //shift elements over by one
+        for(int u=i;u>min_I;u--){
+            arr[u] = arr[u-1];
+            v.displayArrayS(arr, u, v.read_color);
+            v.displayArrayS(arr, u-1, v.write_color);
+        }
+        //make mid_I+1 the key value
+        arr[min_I] = key;
+        v.displayArrayS(arr, min_I, v.write_color);
+    }
+}
+
+void bubble_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=0;i<n-1;i++){
+        bool swapped = false;
+        for(int j=0;j<n-i-1;j++){
+            bool swapcond = arr[j] > arr[j+1];
+            v.displayArrayD(arr, j, j+1, v.read_color);
+            if(swapcond){
+                //swap
+                std::swap(arr[j], arr[j+1]);
+                v.displayArrayD(arr, j, j+1, v.write_color);
+                swapped = true;
+            }
+        }
+        if(!swapped){
+            break;
+        }
+    }
+}
+
+void cocktail_shaker_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    int minptr = 0;
+    int maxptr = n-1;
+
+    while(minptr < maxptr){
+        bool swapped = false;
+        //shake from left to right
+        for(int j=minptr;j<maxptr;j++){
+            bool swapcond = arr[j] > arr[j+1];
+            v.displayArrayD(arr, j, j+1, v.read_color);
+            if(swapcond){
+                //swap
+                std::swap(arr[j], arr[j+1]);
+                v.displayArrayD(arr, j, j+1, v.write_color);
+                swapped = true;
+            }
+        }
+        if(!swapped){
+            break;
+        }
+        maxptr--;
+
+        swapped = false;
+        //shake from right to left
+        for(int j=maxptr;j>minptr;j--){
+            bool swapcond = arr[j] < arr[j-1];
+            v.displayArrayD(arr, j, j-1, v.read_color);
+            if(swapcond){
+                //swap
+                std::swap(arr[j], arr[j-1]);
+                v.displayArrayD(arr, j, j-1, v.write_color);
+                swapped = true;
+            }
+        }
+        if(!swapped){
+            break;
+        }
+        minptr++;
+    }
+}
+
+void quick_sort(Visualizer& v, std::vector<int>& arr){
+    quick_sort_helper(v, arr, 0, arr.size()-1);
+}
+void quick_sort_helper(Visualizer& v, std::vector<int>& arr, int start, int end){
+    //return if list too small
+    if(start >= end)return;
+
+    //partition
+    int pivot = arr[start];
+    v.displayArrayS(arr, start, v.read_color);
+    int leftptr = start+1;
+    int rightptr = end;
+    while(1){
+        //leftptr moves right until it finds one bigger than the pivot
+        
+        while(1){
+            bool whilecond1 = leftptr <= rightptr && arr[leftptr] <= pivot;
+            v.displayArrayS(arr, leftptr, v.read_color);
+            if(!whilecond1)break; //while condition
+            leftptr++;
+        }
+
+        //rightptr moves left until it finds one smaller than the pivot
+        while(1){
+            bool whilecond2 = leftptr <= rightptr && arr[rightptr] >= pivot;
+            v.displayArrayS(arr, rightptr, v.read_color);
+            if(!whilecond2)break; //while condition
+            rightptr--;
+        }
+
+        if(leftptr > rightptr)break;
+
+        //if both conditions are satisfied, swap them
+        std::swap(arr[leftptr], arr[rightptr]);
+        v.displayArrayD(arr, leftptr, rightptr, v.write_color);
+    }
+    //swap pivot with leftptr-1
+    std::swap(arr[start], arr[rightptr]);
+    v.displayArrayD(arr, start, rightptr, v.write_color);
+
+    //run quicksort on left and right
+    quick_sort_helper(v, arr, start, rightptr-1);
+    quick_sort_helper(v, arr, rightptr+1, end);
+}
+
+void merge_sort(Visualizer& v, std::vector<int>& arr){
+    merge_sort_helper(v, arr, 0, arr.size()-1);
+}
+void merge_sort_helper(Visualizer& v, std::vector<int>& arr, int start, int end){
+    //if list size is 1, do nothing
+    if(start >= end)return;
+
+    //split list in halves
+    int mid = start + (end-start)/2;
+    //sort list from start to mid
+    merge_sort_helper(v, arr, start, mid);
+    //sort list from mid+1 to end
+    merge_sort_helper(v, arr, mid+1, end);
+
+    //merge sorted halves
+    int a = start; //goes from start to mid
+    int b = mid+1; //goes from mid+1 to end
+
+    std::vector<int> aux_arr;
+    aux_arr.reserve(end-start+1);
+
+    while(a <= mid && b <= end){
+        bool ifcond1 = arr[a] <= arr[b];
+        v.displayArrayD(arr, a, b, v.read_color);
+        if(ifcond1){
+            aux_arr.push_back(arr[a]);
+            v.displayArrayS(arr, a, v.read_color);
+            a++;
+        }
+        else{
+            aux_arr.push_back(arr[b]);
+            v.displayArrayS(arr, b, v.read_color);
+            b++;
+        }
+
+    }
+    //copy remaining
+    while(a <= mid){
+        aux_arr.push_back(arr[a]);
+        v.displayArrayS(arr, a, v.read_color);
+        a++;
+    }
+    while(b <= end){
+        aux_arr.push_back(arr[b]);
+        v.displayArrayS(arr, b, v.read_color);
+        b++;
+    }
+
+    int n = aux_arr.size();
+
+    for(int i=0;i+1<n;i+=2){ //copy aux_arr to arr
+        arr[start+i] = aux_arr[i];
+        arr[start+i+1] = aux_arr[i+1];
+        v.displayArrayD(arr, i, i+1, v.write_color);
+    }
+    if(n % 2 != 0){
+        arr[start+n-1] = aux_arr[n-1];
+        v.displayArrayS(arr, n-1, v.write_color);
+    }
+}
+
+/*
+Notes:
+    array itself is a binary tree
+    left child of node at index i: 2i+1
+    right child of node at index i: 2i+2 
+    max heap:
+    value of parent > value of childrens
+
+    First construct max heap(max element at index 0
+    move the root value of max heap to the end of the array, making it complete
+    the rest of the array is still the binary tree
+    
+    FIRST time constructing max heap
+    treat array as btree, then find last non leaf node
+
+    For n elements:
+    last_non_leaf = n/2 - 1
+
+    start at that index, perform sift down for elements in [last_non_leaf ..= 0]
+
+    heap size means heap is in array from 0 to heapsize, as in (0 <= i < heapsize) and the next num to swap is arr[heapsize-1], starting heap size is n
+*/
+void heap_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+
+    //build max heap by sift down from [n/2-1 ..= 0]
+    for(int i=n/2-1;i>=0;i--){
+        heap_sort_sift_down(v, arr, i, n);
+    }
+
+    for(int heapsize=n;heapsize>0;heapsize--){
+        //swap maximum with end
+        std::swap(arr[0], arr[heapsize-1]);
+        v.displayArrayD(arr, 0, heapsize-1, v.write_color);
+
+        //sift down from index 0 again, with one less heapsize
+        heap_sort_sift_down(v, arr, 0, heapsize-1);
+    }
+    
+}
+void heap_sort_sift_down(Visualizer& v, std::vector<int>& arr, int index, int heapsize){
+    //indexes
+    int leftchild_i;
+    int rightchild_i;
+    bool hasleft = heap_sort_get_left_child_i(v, arr, index, leftchild_i, heapsize);
+    bool hasright = heap_sort_get_right_child_i(v, arr, index, rightchild_i, heapsize);
+
+    //Find index of max child
+    int maxchild_i;
+    if(hasleft && hasright){
+        //compare both
+        maxchild_i = (arr[rightchild_i] > arr[leftchild_i]) ? rightchild_i : leftchild_i;
+        v.displayArrayD(arr, rightchild_i, leftchild_i, v.read_color);
+    }
+    else if(hasleft || hasright){
+        maxchild_i = hasleft ? leftchild_i : rightchild_i;
+    }
+    else{ //no children
+        return;
+    }
+    //swap with maxchild if the current is smaller than the children
+    bool ifcond = arr[index] < arr[maxchild_i];
+    v.displayArrayD(arr, index, maxchild_i, v.read_color);
+    if(ifcond){
+        std::swap(arr[index], arr[maxchild_i]);
+        v.displayArrayD(arr, index, maxchild_i, v.write_color);
+        
+        //continue the sift down
+        heap_sort_sift_down(v, arr, maxchild_i, heapsize);
+    }
+}
+bool heap_sort_get_left_child_i(Visualizer& v, std::vector<int>& arr, int index, int& ret, int heapsize){ //returns bool if child exists
+    int leftindex = 2 * index + 1;
+    if(leftindex < heapsize){
+        ret = leftindex;
+        return true;
+    }
+    return false;
+}
+bool heap_sort_get_right_child_i(Visualizer& v, std::vector<int>& arr, int index, int& ret, int heapsize){ //returns bool if child exists
+    int rightindex = 2 * index + 2;
+    if(rightindex < heapsize){
+        ret = rightindex;
+        return true;
+    }
+    return false;
+}
+
+void comb_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+
+    int combsize = comb_sort_get_next_combsize(n);
+    
+
+}
+int comb_sort_get_next_combsize(int combsize){ //returns the next comb size
+    int newsize = (int)((float)combsize) / 1.3f;
+    if(newsize == 0)return 1; //make sure comb is still a comb
+    return (int)(newsize);
+}
+bool comb_sort_comb(Visualizer& v, std::vector<int>& arr, int combsize){ //returns true if no swaps made
+    //combs vel's hair once
+
+}
+
+
+void bogo_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    std::vector<int> new_arr(n);
+
+    while(1){
+        //check sorted
+        bool sorted = true;
+        for(int i=0;i<n-1;i++){
+            bool ifcond = arr[i] > arr[i+1];
+            v.displayArrayD(arr, i, i+1, v.read_color);
+            if(ifcond){
+                sorted = false;
+                break;
+            }
+        }
+
+        if(sorted)break;
+
+        //if not sorted, copy new random array
+        new_arr = shuffleArray(arr);
+
+        for(int i=0;i+1<n;i+=2){
+            arr[i] = new_arr[i];
+            arr[i+1] = new_arr[i+1];
+            v.displayArrayD(arr, i, i+1, v.write_color);
+        }
+        if(n % 2 != 0){
+            arr[n-1] = new_arr[n-1];
+            v.displayArrayS(arr, n-1, v.write_color);
+        }
+    }
+}
+
+void stalin_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    for(int i=0;i<n-1;i++){
+        bool ifcond = arr[i] > arr[i+1];
+        v.displayArrayD(arr, i, i+1, v.read_color);
+        if(ifcond){
+            arr.erase(arr.begin() + i + 1);
+            n--;
+            i--;
+        }
+        v.displayArray(arr);
+    }
+}
+
+
+
