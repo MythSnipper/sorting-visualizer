@@ -36,14 +36,18 @@ class Visualizer{
 
         ColorRGB bar_color = {0xFFFFFF};
         ColorRGB read_color = {0xFFA500};
-        ColorRGB compare_color = {0x000000};
         ColorRGB write_color = {0xFF0000};
-        ColorRGB swap_color = {0x00FFFF};
         ColorRGB sorted_color = {0x00FF00};
 
         int colormode = 0;
         //1 is special colors of june
         //2 is same as 1 but non static coloring
+
+        //store indices with either read or write, 0 read 1 write
+        std::vector<std::pair<int, bool>> displayIndices;
+        //if above vector has displayIndicesMaxCount elements, display one frame
+        int displayIndicesMaxCount = 1;
+
 
         void init();
         bool handleEvents();

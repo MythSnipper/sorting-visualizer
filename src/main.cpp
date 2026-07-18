@@ -3,8 +3,8 @@
 int main(int argc, char** argv){
     //settings
     std::string title = "Sorting Visualizer";
-    int WINDOW_WIDTH = 1920;
-    int WINDOW_HEIGHT = 1080;
+    int WINDOW_WIDTH = 1080;
+    int WINDOW_HEIGHT = 720;
 
     Visualizer v;
     v.title = title;
@@ -30,11 +30,14 @@ int main(int argc, char** argv){
         merge_sort, 
         heap_sort, //8
         comb_sort, 
+        shell_sort,
+        radix_sort_LSD_base2, 
+        radix_sort_LSD_base16, 
         bogo_sort, 
         stalin_sort, 
 
     };
-    int resosize = 1920-20;
+    int resosize = WINDOW_WIDTH-10;
     int algs_inputsize[] = {
         resosize/4, //0
         resosize/4, 
@@ -45,8 +48,11 @@ int main(int argc, char** argv){
         resosize, 
         resosize, 
         resosize, //8
-        resosize/4, 
-        8, 
+        resosize, 
+        resosize, 
+        resosize, 
+        resosize, 
+        6, 
         resosize, 
     };
     int algs_tickrate[] = {
@@ -62,10 +68,13 @@ int main(int argc, char** argv){
         0, 
         0, 
         0, 
+        0, 
+        0, 
+        0, 
     };
     int numAlgsImplemented = sizeof(algs)/sizeof(algs[0]);
 
-    int algs_inputsize_fixed = 1260/4;
+    int algs_inputsize_fixed = resosize;
     int algs_tickrate_fixed = 0;
 
     bool use_recommended_inputsize = true;
@@ -75,7 +84,7 @@ int main(int argc, char** argv){
 
     arr = generateShuffledArray(use_recommended_inputsize ? algs_inputsize[0] : algs_inputsize_fixed);
     do{
-        for(int i=9;i<numAlgsImplemented;i++){
+        for(int i=11;i<numAlgsImplemented;i++){
             //set tick rate
             v.tickrate = use_recommended_tickrate ? algs_tickrate[i] : algs_tickrate_fixed; //0 is very fast
 
@@ -84,6 +93,7 @@ int main(int argc, char** argv){
 
             //sort array
             run_sort_anim(v, arr, algs[i], oneshot);
+            std::cout << "Sort " << i << " finished!\n";
         }
     }while(loop);
 
@@ -176,6 +186,9 @@ void run_sort_anim(Visualizer& v, std::vector<int>& arr, void (*alg)(Visualizer&
 }
 
 void shuffle_array_anim(Visualizer& v, std::vector<int>& arr, int size){
+    //temporarily set to 1
+    int tmp = v.displayIndicesMaxCount;
+    v.displayIndicesMaxCount = 1;
     //make new shuffled array
     std::vector<int> new_arr;
     new_arr.reserve(size);
@@ -194,6 +207,7 @@ void shuffle_array_anim(Visualizer& v, std::vector<int>& arr, int size){
     v.tickrate = tmptickrate;
     v.setAudioEnabled(false);
     v.displayArray(arr);
+    v.displayIndicesMaxCount = tmp;
 }
 
 

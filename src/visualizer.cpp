@@ -54,6 +54,9 @@ void Visualizer::init(){
         SDL_PauseAudioDevice(audioDevice, 0);
     }
 
+    //init indices storage
+    displayIndices.reserve(displayIndicesMaxCount+1);
+    displayIndices.clear();
 
 }
 
@@ -135,14 +138,37 @@ void Visualizer::displayArray(std::vector<int>& arr){
 }
 
 void Visualizer::displayArrayS(std::vector<int>& arr, int index, ColorRGB hcolor){
-    this->displayArrayD(arr, index, -1, hcolor);
+    this->displayArrayD(arr, index, index, hcolor);
 }
 
 void Visualizer::displayArrayD(std::vector<int>& arr, int index, int index2, ColorRGB hcolor){
     if(!this->handleEvents())exit(0);
-    this->clearScreen();
 
     if(arr.size() == 0)return;
+
+    bool isWrite = 
+        hcolor.r == write_color.r && 
+        hcolor.g == write_color.g && 
+        hcolor.b == write_color.b;
+
+    //if index and index2 are the same, push only one
+    //if index or index2 is -1, do not push and run display code
+    if(index == -1 || index2 == -1)goto display_bypassed;
+    if(index == index2){
+        displayIndices.push_back({index, isWrite});
+    }
+    else{
+        //push both
+        displayIndices.push_back({index, isWrite});
+        displayIndices.push_back({index2, isWrite});
+    }
+
+    //if array not above display size, don't draw
+    if(displayIndices.size() < displayIndicesMaxCount)return;
+
+    display_bypassed:
+    //Draw
+    this->clearScreen();
 
     //find min and max values in arr
     int minValue = arr[0];
@@ -249,14 +275,28 @@ void Visualizer::displayArrayD(std::vector<int>& arr, int index, int index2, Col
         this->drawRect(x, y, barWidth, barLength, barcolor, true);
     }
 
+    //Draw rects for the indices
+    for(std::pair<int, bool> pair : displayIndices){
+        int i = pair.first;
+        ColorRGB barcolor = pair.second ? write_color : read_color;
+
+        int num = arr[i];
+
+        int barLength = barMinLength + ((num - minValue) * dpx);
+        int x = padding + i * barWidth;
+        int y = (chartHeight+padding) - barLength + text_padding;
+        
+        this->drawRect(x, y, barWidth, barLength, barcolor, true);
+    }
+
+    //clear struct
+    displayIndices.clear();
+
     this->update();
     if(tickrate > 0){
         this->sleep(1000/tickrate);
     }
 }
-
-
-
 
 void Visualizer::displayArray_sortedLim(std::vector<int>& arr, int index, ColorRGB hcolor){
     if(!this->handleEvents())exit(0);

@@ -2,7 +2,6 @@
 
 #include <main.hpp>
 
-
 //sorts
 void selection_sort(Visualizer& v, std::vector<int>& arr){
     int n = arr.size();
@@ -411,6 +410,140 @@ bool comb_sort_comb(Visualizer& v, std::vector<int>& arr, int combsize){ //retur
     return sorted;
 }
 
+void shell_sort(Visualizer& v, std::vector<int>& arr){
+    std::vector<int> gaps = {701, 301, 132, 57, 23, 10, 4, 1};
+    for(int gapsize : gaps){
+        //sort
+        shell_sort_gapped_insertion(v, arr, gapsize);
+    }
+}
+void shell_sort_gapped_insertion(Visualizer& v, std::vector<int>& arr, int gapsize){
+    int n = arr.size();
+    for(int i=gapsize;i<n;i++){
+        int key = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
+        int j = i;
+
+        while(j >= gapsize){
+            bool ifcond = arr[j-gapsize] <= key;
+            v.displayArrayS(arr, j-gapsize, v.read_color);
+            if(ifcond)break;
+
+            arr[j] = arr[j-gapsize];
+            //skipped: redundant
+            //    v.displayArrayS(arr, j-gapsize, v.read_color);
+            v.displayArrayS(arr, j, v.write_color);
+            j -= gapsize;
+        }
+        arr[j] = key;
+        v.displayArrayS(arr, j, v.write_color);
+    }
+}
+
+void radix_sort_LSD_base2(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+
+    //find max integer
+    int max = arr[0];
+    v.displayArrayS(arr, 0, v.read_color);
+    for(int i=1;i<n;i++){
+        max = (arr[i]>max) ? arr[i] : max;
+        v.displayArrayS(arr, i, v.read_color);
+    }
+
+    //find rounds of base 2 to do(number of base 2 digits in max)
+    int bases = 0;
+    while(max != 0){
+        max >>= 1;
+        bases++;
+    }
+    
+    //auxiliary array to store elements
+    std::vector<int> aux;
+    aux.reserve(n);
+    //do rounds
+    for(int i=0;i<bases;i++){
+        uint64_t mask = 1 << i;
+        //for every possible combination of that digit
+        for(int j=0;j<n;j++){
+            int num = arr[j];
+            v.displayArrayS(arr, j, v.read_color);
+            if((num & mask) == 0){
+                aux.push_back(num);
+            }
+        }
+
+        for(int j=0;j<n;j++){
+            int num = arr[j];
+            v.displayArrayS(arr, j, v.read_color);
+            if((num & mask) == mask){
+                aux.push_back(num);
+            }
+        }
+
+        //copy aux to arr
+        for(int i=0;i+1<n;i+=2){
+            arr[i] = aux[i];
+            arr[i+1] = aux[i+1];
+            v.displayArrayD(arr, i, i+1, v.write_color);
+        }
+        if(n % 2 != 0){
+            arr[n-1] = aux[n-1];
+            v.displayArrayS(arr, n-1, v.write_color);
+        }
+        aux.clear();
+    }
+}
+
+void radix_sort_LSD_base16(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+
+    //find max integer
+    int max = arr[0];
+    v.displayArrayS(arr, 0, v.read_color);
+    for(int i=1;i<n;i++){
+        max = (arr[i]>max) ? arr[i] : max;
+        v.displayArrayS(arr, i, v.read_color);
+    }
+
+    //find rounds of base 16 to do(number of base 16 digits in max)
+    int bases = 0;
+    while(max != 0){
+        max /= 16;
+        bases++;
+    }
+    
+    //auxiliary array to store elements
+    std::vector<int> aux;
+    aux.reserve(n);
+    //do rounds
+    for(int i=0;i<bases;i++){
+        uint64_t mask = 0xF << (4*i);
+
+        //for every possible combination of that digit
+        for(int target=0;target<16;target++){
+            for(int j=0;j<n;j++){
+                int num = arr[j];
+                v.displayArrayS(arr, j, v.read_color);
+                if(((num & mask) >> (4*i)) == target){
+                    aux.push_back(num);
+                }
+            }
+        }
+        //copy aux to arr
+        for(int i=0;i+1<n;i+=2){
+            arr[i] = aux[i];
+            arr[i+1] = aux[i+1];
+            v.displayArrayD(arr, i, i+1, v.write_color);
+        }
+        if(n % 2 != 0){
+            arr[n-1] = aux[n-1];
+            v.displayArrayS(arr, n-1, v.write_color);
+        }
+        aux.clear();
+
+    }
+}
 
 void bogo_sort(Visualizer& v, std::vector<int>& arr){
     int n = arr.size();

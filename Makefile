@@ -38,7 +38,6 @@ build:
 
 	$(STRIP) build/sortingvisuals
 
-
 run: build
 	printf "Running program:\n"
 	./build/sortingvisuals
