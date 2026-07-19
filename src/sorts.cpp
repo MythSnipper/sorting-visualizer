@@ -507,7 +507,7 @@ void radix_sort_LSD(Visualizer& v, std::vector<int>& arr, int base){
 
 }
 void radix_sort_LSD_base4(Visualizer& v, std::vector<int>& arr){
-    radix_sort_LSD(v, arr, 2);
+    radix_sort_LSD(v, arr, 4);
 }
 
 void radix_sort_MSD(Visualizer& v, std::vector<int>& arr, int base){
@@ -583,7 +583,7 @@ void radix_sort_MSD_helper(Visualizer& v, std::vector<int>& arr, int base, int s
     radix_sort_MSD_helper(v, arr, base, positions[base-1], endI, divisor/base);
 }
 void radix_sort_MSD_base4(Visualizer& v, std::vector<int>& arr){
-    radix_sort_MSD(v, arr, 2);
+    radix_sort_MSD(v, arr, 4);
 }
 
 void bogo_sort(Visualizer& v, std::vector<int>& arr){
