@@ -208,6 +208,10 @@ void quick_sort_helper(Visualizer& v, std::vector<int>& arr, int start, int end)
         //if both conditions are satisfied, swap them
         std::swap(arr[leftptr], arr[rightptr]);
         v.displayArrayD(arr, leftptr, rightptr, v.write_color);
+
+        //advance pointers
+        leftptr++;
+        rightptr--;
     }
     //swap pivot with leftptr-1
     std::swap(arr[start], arr[rightptr]);
@@ -440,10 +444,10 @@ void shell_sort_gapped_insertion(Visualizer& v, std::vector<int>& arr, int gapsi
     }
 }
 
-void radix_sort_LSD_base2(Visualizer& v, std::vector<int>& arr){
+void radix_sort_LSD(Visualizer& v, std::vector<int>& arr, int base){
     int n = arr.size();
 
-    //find max integer
+    //find max integer in array
     int max = arr[0];
     v.displayArrayS(arr, 0, v.read_color);
     for(int i=1;i<n;i++){
@@ -451,34 +455,41 @@ void radix_sort_LSD_base2(Visualizer& v, std::vector<int>& arr){
         v.displayArrayS(arr, i, v.read_color);
     }
 
-    //find rounds of base 2 to do(number of base 2 digits in max)
-    int bases = 0;
-    while(max != 0){
-        max >>= 1;
-        bases++;
-    }
-    
     //auxiliary array to store elements
-    std::vector<int> aux;
-    aux.reserve(n);
-    //do rounds
-    for(int i=0;i<bases;i++){
-        uint64_t mask = 1 << i;
-        //for every possible combination of that digit
-        for(int j=0;j<n;j++){
-            int num = arr[j];
-            v.displayArrayS(arr, j, v.read_color);
-            if((num & mask) == 0){
-                aux.push_back(num);
-            }
+    std::vector<int> aux(n);
+    
+    //auxiliary array to store digit positions
+    std::vector<int> positions(base);
+
+    //auxiliary array to store occurances for a digit
+    std::vector<int> occurances(base);
+
+    //Do rounds
+    int divisor = 1;
+    while(max != 0){
+        max /= base;
+
+        //count occurance of a digit
+        for(int i=0;i<n;i++){
+            v.displayArrayS(arr, i, v.read_color);
+            int digit = (arr[i] / divisor) % base;
+            occurances[digit]++;
+        }
+        //do running count and put in positions array
+        int sum = 0;
+        for(int i=0;i<base;i++){
+            positions[i] = sum;
+            sum += occurances[i];
+            //reset occurances array
+            occurances[i] = 0;
         }
 
-        for(int j=0;j<n;j++){
-            int num = arr[j];
-            v.displayArrayS(arr, j, v.read_color);
-            if((num & mask) == mask){
-                aux.push_back(num);
-            }
+        //go through the array for the current base and put it in the aux array based on positions array
+        for(int i=0;i<n;i++){
+            v.displayArrayS(arr, i, v.read_color);
+            int digit = (arr[i] / divisor) % base;
+            aux[positions[digit]] = arr[i];
+            positions[digit]++;
         }
 
         //copy aux to arr
@@ -491,58 +502,88 @@ void radix_sort_LSD_base2(Visualizer& v, std::vector<int>& arr){
             arr[n-1] = aux[n-1];
             v.displayArrayS(arr, n-1, v.write_color);
         }
-        aux.clear();
+        divisor *= base;
     }
+
+}
+void radix_sort_LSD_base4(Visualizer& v, std::vector<int>& arr){
+    radix_sort_LSD(v, arr, 2);
 }
 
-void radix_sort_LSD_base16(Visualizer& v, std::vector<int>& arr){
+void radix_sort_MSD(Visualizer& v, std::vector<int>& arr, int base){
     int n = arr.size();
-
-    //find max integer
+    //find biggest number
     int max = arr[0];
-    v.displayArrayS(arr, 0, v.read_color);
     for(int i=1;i<n;i++){
-        max = (arr[i]>max) ? arr[i] : max;
+        max = (arr[i] > max) ? arr[i] : max;
         v.displayArrayS(arr, i, v.read_color);
     }
-
-    //find rounds of base 16 to do(number of base 16 digits in max)
-    int bases = 0;
-    while(max != 0){
-        max /= 16;
-        bases++;
+    //find divisor
+    int tmp = max;
+    //divide tmp by base first, then finding divisor is finding power of base that is bigger than max
+    tmp /= base;
+    int divisor = 1;
+    while(divisor < tmp){
+        divisor *= base;
     }
-    
-    //auxiliary array to store elements
-    std::vector<int> aux;
-    aux.reserve(n);
-    //do rounds
-    for(int i=0;i<bases;i++){
-        uint64_t mask = 0xF << (4*i);
+    radix_sort_MSD_helper(v, arr, base, 0, n, divisor);
+}
+//sorts section where startI <= i < endI
+void radix_sort_MSD_helper(Visualizer& v, std::vector<int>& arr, int base, int startI, int endI, int divisor){
+    int n = endI-startI;
 
-        //for every possible combination of that digit
-        for(int target=0;target<16;target++){
-            for(int j=0;j<n;j++){
-                int num = arr[j];
-                v.displayArrayS(arr, j, v.read_color);
-                if(((num & mask) >> (4*i)) == target){
-                    aux.push_back(num);
-                }
-            }
-        }
-        //copy aux to arr
-        for(int i=0;i+1<n;i+=2){
-            arr[i] = aux[i];
-            arr[i+1] = aux[i+1];
-            v.displayArrayD(arr, i, i+1, v.write_color);
-        }
-        if(n % 2 != 0){
-            arr[n-1] = aux[n-1];
-            v.displayArrayS(arr, n-1, v.write_color);
-        }
-        aux.clear();
+    if(n < 2 || divisor == 0)return;
 
+    //count how many values belong to each digit bucket
+    std::vector<int> occurances(base);
+    std::vector<int> positions(base);
+
+    for(int i=startI;i<endI;i++){
+        int digit = (arr[i] / divisor) % base;
+        v.displayArrayS(arr, i, v.read_color);
+        occurances[digit]++;
     }
+
+    //calculate where each bucket starts
+    int sum = startI;
+    for(int i=0;i<base;i++){
+        positions[i] = sum;
+        sum += occurances[i];
+    }
+
+    //reuse occurances array as a temporary positions array
+    for(int i=0;i<base;i++){
+        occurances[i] = positions[i];
+    }
+
+    //distribute values into an auxiliary array
+    std::vector<int> aux(n);
+    for(int i=startI;i<endI;i++){
+        int digit = (arr[i] / divisor) % base;
+        aux[occurances[digit]-startI] = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
+        occurances[digit]++;
+    }
+
+    //copy from aux to arr
+    for(int i=startI;i+1<endI;i+=2){
+        arr[i] = aux[i-startI];
+        arr[i+1] = aux[i-startI+1];
+        v.displayArrayD(arr, i, i+1, v.write_color);
+    }
+    if(n % 2 != 0){
+        arr[endI-1] = aux[n-1];
+        v.displayArrayS(arr, endI-1, v.write_color);
+    }
+
+    //sort buckets by recursion
+    for(int i=0;i<base-1;i++){
+        radix_sort_MSD_helper(v, arr, base, positions[i], positions[i+1], divisor/base);
+    }
+    radix_sort_MSD_helper(v, arr, base, positions[base-1], endI, divisor/base);
+}
+void radix_sort_MSD_base4(Visualizer& v, std::vector<int>& arr){
+    radix_sort_MSD(v, arr, 2);
 }
 
 void bogo_sort(Visualizer& v, std::vector<int>& arr){

@@ -3,7 +3,7 @@
 #tools used
 CC = gcc
 CXX = g++
-LD = ld
+LD = mold
 STRIP = strip
 
 CXXFLAGS =\
@@ -17,10 +17,10 @@ CXXFLAGS =\
 	-fsanitize=address,undefined \
 	-fno-omit-frame-pointer \
 	-g \
-	$(shell pkg-config --cflags sdl2)
+	$(shell pkg-config --cflags sdl2 SDL2_ttf)
 
 CXXFLAGS_L =\
-	$(shell pkg-config --libs sdl2)
+	$(shell pkg-config --libs sdl2 SDL2_ttf)
 
 LDFLAGS =\
 

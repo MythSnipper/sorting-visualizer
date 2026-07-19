@@ -29,6 +29,19 @@ void Visualizer::init(){
         exit(1);
 	}
 
+    //initialize ttf
+    if(TTF_Init() < 0){
+        std::cout << "Error initializing TTF: " << TTF_GetError() << std::endl;
+        exit(1);
+    }
+
+    //load font
+    font = TTF_OpenFont(font_path, 24);
+    if(!font){
+        std::cout << "Error opening font: " << TTF_GetError() << std::endl;
+        exit(1);
+    }
+
     //clear screen
     SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, 255);
     SDL_RenderClear(renderer);
@@ -91,6 +104,56 @@ void Visualizer::drawRect(int x, int y, int width, int height, ColorRGB color, b
 
     SDL_Rect r = {x, y, width, height};
     ((fill) ? SDL_RenderFillRect : SDL_RenderDrawRect)(renderer, &r);
+}
+
+void Visualizer::drawText(std::string& text, int x, int y, ColorRGB color){
+    SDL_Color sdlColor{
+        color.r,
+        color.g,
+        color.b,
+        255
+    };
+
+    SDL_Surface* surface =
+        TTF_RenderUTF8_Blended(
+            font,
+            text.c_str(),
+            sdlColor
+        );
+
+    if(!surface){
+        std::cout << "Error creating surface: " << TTF_GetError() << std::endl;
+        exit(1);
+    }
+
+    SDL_Texture* texture =
+        SDL_CreateTextureFromSurface(
+            renderer,
+            surface
+        );
+
+    if(texture == nullptr){
+        std::cout << "Text surface error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    SDL_Rect destination{
+        x,
+        y,
+        surface->w,
+        surface->h
+    };
+
+    SDL_FreeSurface(surface);
+
+    SDL_RenderCopy(
+        renderer,
+        texture,
+        nullptr,
+        &destination
+    );
+
+    SDL_DestroyTexture(texture);
 }
 
 void Visualizer::update(){
@@ -169,6 +232,14 @@ void Visualizer::displayArrayD(std::vector<int>& arr, int index, int index2, Col
     display_bypassed:
     //Draw
     this->clearScreen();
+
+    //text
+    drawText(
+        label,
+        10,
+        10,
+        ColorRGB{0xFFFFFF}
+    );
 
     //find min and max values in arr
     int minValue = arr[0];
@@ -279,7 +350,7 @@ void Visualizer::displayArrayD(std::vector<int>& arr, int index, int index2, Col
     for(std::pair<int, bool> pair : displayIndices){
         int i = pair.first;
         ColorRGB barcolor = pair.second ? write_color : read_color;
-
+        if(i < 0 || i >= arr.size())continue;
         int num = arr[i];
 
         int barLength = barMinLength + ((num - minValue) * dpx);
@@ -410,7 +481,7 @@ void Visualizer::displayArray_sortedLim(std::vector<int>& arr, int index, ColorR
 void Visualizer::sortedAnimation(std::vector<int>& arr){
     for(int i=0;i<arr.size();i++){
         displayArray_sortedLim(arr, i, sorted_color);
-        this->sleep((int)(((float)sorted_animation_ms/arr.size()) + 0.5));
+        this->sleep((int)(((float)sorted_animation_ms/arr.size())));
     }
 }
 

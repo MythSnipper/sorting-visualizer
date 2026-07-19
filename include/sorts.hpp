@@ -35,8 +35,12 @@ bool comb_sort_comb(Visualizer& v, std::vector<int>& arr, int combsize);
 void shell_sort(Visualizer& v, std::vector<int>& arr);
 void shell_sort_gapped_insertion(Visualizer& v, std::vector<int>& arr, int gapsize);
 
-void radix_sort_LSD_base2(Visualizer& v, std::vector<int>& arr);
-void radix_sort_LSD_base16(Visualizer& v, std::vector<int>& arr);
+void radix_sort_LSD(Visualizer& v, std::vector<int>& arr, int base);
+void radix_sort_LSD_base4(Visualizer& v, std::vector<int>& arr);
+
+void radix_sort_MSD(Visualizer& v, std::vector<int>& arr, int base);
+void radix_sort_MSD_helper(Visualizer& v, std::vector<int>& arr, int base, int startI, int endI, int divisor);
+void radix_sort_MSD_base4(Visualizer& v, std::vector<int>& arr);
 
 void bogo_sort(Visualizer& v, std::vector<int>& arr);
 

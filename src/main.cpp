@@ -3,13 +3,14 @@
 int main(int argc, char** argv){
     //settings
     std::string title = "Sorting Visualizer";
-    int WINDOW_WIDTH = 1080;
+    int WINDOW_WIDTH = 1320;
     int WINDOW_HEIGHT = 720;
 
     Visualizer v;
     v.title = title;
     v.windowWidth = WINDOW_WIDTH;
     v.windowHeight = WINDOW_HEIGHT;
+    v.font_path = "cozette.ttf";
 
     v.init();
     v.clearScreen();
@@ -18,7 +19,7 @@ int main(int argc, char** argv){
     std::vector<int> arr;
 
     //sorting algorithms
-    //list of algs, recommended input size, recommended tick rate
+    //list of algs, display names, recommended input size, recommended tick rate
     void (*algs[])(Visualizer&, std::vector<int>&) = {
         selection_sort, //0
         double_selection_sort, 
@@ -31,11 +32,27 @@ int main(int argc, char** argv){
         heap_sort, //8
         comb_sort, 
         shell_sort,
-        radix_sort_LSD_base2, 
-        radix_sort_LSD_base16, 
+        radix_sort_LSD_base4, 
+        radix_sort_MSD_base4, 
         bogo_sort, 
         stalin_sort, 
-
+    };
+    char* alg_label[] = {
+        "Selection Sort", //0
+        "Double Selection Sort", 
+        "Insertion Sort", 
+        "Binary Insertion Sort", 
+        "Bubble Sort", //4
+        "Cocktail Shaker Sort", 
+        "Quicksort", 
+        "Merge Sort", 
+        "Heapsort", //8
+        "Comb Sort", 
+        "Shell Sort",
+        "Radix Sort(LSD) base 4", 
+        "Radix Sort(MSD) base 4", 
+        "Bogosort", 
+        "Stalin Sort", 
     };
     int resosize = WINDOW_WIDTH-10;
     int algs_inputsize[] = {
@@ -89,10 +106,11 @@ int main(int argc, char** argv){
             v.tickrate = use_recommended_tickrate ? algs_tickrate[i] : algs_tickrate_fixed; //0 is very fast
 
             //shuffle array
+            v.label = "Shuffling";
             shuffle_array_anim(v, arr, use_recommended_inputsize ? algs_inputsize[i] : algs_inputsize_fixed);
 
             //sort array
-            run_sort_anim(v, arr, algs[i], oneshot);
+            run_sort_anim(v, arr, algs[i], alg_label[i], oneshot);
             std::cout << "Sort " << i << " finished!\n";
         }
     }while(loop);
@@ -149,8 +167,8 @@ std::vector<int> shuffleArray(std::vector<int>& arr){
 }
 
 
-
-void run_sort_anim(Visualizer& v, std::vector<int>& arr, void (*alg)(Visualizer&, std::vector<int>&), bool oneshot){
+void run_sort_anim(Visualizer& v, std::vector<int>& arr, void (*alg)(Visualizer&, std::vector<int>&), char* alg_label, bool oneshot){
+    v.label = alg_label;
     v.clearScreen();
     v.displayArray(arr);
     v.activeSleep(2000);
@@ -181,14 +199,14 @@ void run_sort_anim(Visualizer& v, std::vector<int>& arr, void (*alg)(Visualizer&
     while(oneshot){
         v.activeSleep(2000);
     }
-    v.activeSleep(1500);
+    v.activeSleep(1000);
     v.displayArray(arr);
 }
 
 void shuffle_array_anim(Visualizer& v, std::vector<int>& arr, int size){
-    //temporarily set to 1
+    //temporarily set to 4
     int tmp = v.displayIndicesMaxCount;
-    v.displayIndicesMaxCount = 1;
+    v.displayIndicesMaxCount = 4;
     //make new shuffled array
     std::vector<int> new_arr;
     new_arr.reserve(size);

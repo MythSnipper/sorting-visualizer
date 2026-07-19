@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <vector>
 
@@ -34,6 +35,14 @@ class Visualizer{
         int text_padding = 50; //padding for displaying the text at the top
         int padding = 2; //padding from the window frame overall
 
+        //Text
+        //path to font
+        char* font_path = NULL;
+        //font
+        TTF_Font* font = NULL;
+        //current displaying text
+        std::string label;
+
         ColorRGB bar_color = {0xFFFFFF};
         ColorRGB read_color = {0xFFA500};
         ColorRGB write_color = {0xFF0000};
@@ -46,13 +55,14 @@ class Visualizer{
         //store indices with either read or write, 0 read 1 write
         std::vector<std::pair<int, bool>> displayIndices;
         //if above vector has displayIndicesMaxCount elements, display one frame
-        int displayIndicesMaxCount = 1;
+        int displayIndicesMaxCount = 4;
 
 
         void init();
         bool handleEvents();
         void clearScreen();
         void drawRect(int x, int y, int width, int height, ColorRGB color, bool fill);
+        void drawText(std::string& text, int x, int y, ColorRGB color);
         void update();
         void quit();
         void sleep(int ms);
