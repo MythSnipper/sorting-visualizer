@@ -33,7 +33,11 @@ int main(int argc, char** argv){
         comb_sort, 
         shell_sort,
         radix_sort_LSD_base4, 
-        radix_sort_MSD_base4, 
+        radix_sort_MSD_base4, //12
+        bucket_sort, 
+        counting_sort, 
+        gravity_sort, 
+        pancake_sort, 
         bogo_sort, 
         stalin_sort, 
     };
@@ -50,7 +54,11 @@ int main(int argc, char** argv){
         "Comb Sort", 
         "Shell Sort",
         "Radix Sort(LSD) base 4", 
-        "Radix Sort(MSD) base 4", 
+        "Radix Sort(MSD) base 4", //12
+        "Bucket Sort(50 buckets)", 
+        "Counting Sort", 
+        "Gravity Sort", 
+        "Pancake Sort", 
         "Bogosort", 
         "Stalin Sort", 
     };
@@ -68,7 +76,11 @@ int main(int argc, char** argv){
         resosize, 
         resosize, 
         resosize, 
+        resosize, //12
         resosize, 
+        resosize, 
+        resosize/2, 
+        resosize/8, 
         6, 
         resosize, 
     };
@@ -82,6 +94,10 @@ int main(int argc, char** argv){
         0, 
         0, 
         0, //8
+        0, 
+        0, 
+        0, 
+        0, //12
         0, 
         0, 
         0, 
@@ -101,7 +117,7 @@ int main(int argc, char** argv){
 
     arr = generateShuffledArray(use_recommended_inputsize ? algs_inputsize[0] : algs_inputsize_fixed);
     do{
-        for(int i=11;i<numAlgsImplemented;i++){
+        for(int i=0;i<numAlgsImplemented;i++){
             //set tick rate
             v.tickrate = use_recommended_tickrate ? algs_tickrate[i] : algs_tickrate_fixed; //0 is very fast
 
@@ -111,7 +127,6 @@ int main(int argc, char** argv){
 
             //sort array
             run_sort_anim(v, arr, algs[i], alg_label[i], oneshot);
-            std::cout << "Sort " << i << " finished!\n";
         }
     }while(loop);
 
@@ -211,7 +226,7 @@ void shuffle_array_anim(Visualizer& v, std::vector<int>& arr, int size){
     std::vector<int> new_arr;
     new_arr.reserve(size);
     new_arr = generateShuffledArray(size);
-    arr.resize(size);
+    arr.assign(size, 0);
 
     v.setAudioEnabled(true);
     //copy to original array, with no sleep

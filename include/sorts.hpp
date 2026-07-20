@@ -42,6 +42,20 @@ void radix_sort_MSD(Visualizer& v, std::vector<int>& arr, int base);
 void radix_sort_MSD_helper(Visualizer& v, std::vector<int>& arr, int base, int startI, int endI, int divisor);
 void radix_sort_MSD_base4(Visualizer& v, std::vector<int>& arr);
 
+void bucket_sort_helper(Visualizer& v, std::vector<int>& arr, int NumOfBuckets);
+void bucket_sort_sortbucket(Visualizer& v, std::vector<int>& arr, int startI, int endI);
+void bucket_sort(Visualizer& v, std::vector<int>& arr);
+
+void counting_sort(Visualizer& v, std::vector<int>& arr);
+
+void gravity_sort(Visualizer& v, std::vector<int>& arr);
+
+void pancake_sort(Visualizer& v, std::vector<int>& arr);
+void pancake_sort_flip(Visualizer& v, std::vector<int>& arr, int start, int end);
+
+
+
+
 void bogo_sort(Visualizer& v, std::vector<int>& arr);
 
 void stalin_sort(Visualizer& v, std::vector<int>& arr);
