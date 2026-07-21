@@ -846,28 +846,59 @@ void cycle_sort(Visualizer& v, std::vector<int>& arr){
 
     for(int i=0;i<n-1;i++){
         int curr = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
 
         //find final pos of currently cycling number
-        int finalpos = 0;
-        for(int j=i;j<n;j++){
-            if(arr[j] < cycle_num){
+        int finalpos = i;
+        for(int j=i+1;j<n;j++){
+            bool ifcond = arr[j] < curr;
+            v.displayArrayS(arr, j, v.read_color);
+            if(ifcond){
                 finalpos++;
             }
         }
 
         //put cycle num in final pos if it is not already there
-        if(finalpos != cycle_start){
-            int tmp = arr[finalpos]; //save next cycle num
-            arr[finalpos] = cycle_num;
-            cycle_num = tmp;
-        }
-        else{
+        if(finalpos == i){
             //not a cycle
-            break;
+            continue;
         }
+        
+        //prevent duplicates
         while(1){
+            bool whilecond = curr == arr[finalpos];
+            v.displayArrayS(arr, finalpos, v.read_color);
+            if(!whilecond)break;
+            finalpos++;
         }
 
+        //swap
+        std::swap(arr[finalpos], curr);
+        v.displayArrayS(arr, finalpos, v.write_color);
+        
+        //rotate the rest of the cycle
+        while(finalpos != i){
+            finalpos = i;
+            //find final pos of currently cycling number
+            for(int j=i+1;j<n;j++){
+                bool ifcond = arr[j] < curr;
+                v.displayArrayS(arr, j, v.read_color);
+                if(ifcond){
+                    finalpos++;
+                }
+            }
+            //prevent duplicates
+            while(1){
+                bool whilecond = curr == arr[finalpos];
+                v.displayArrayS(arr, finalpos, v.read_color);
+                if(!whilecond)break;
+                finalpos++;
+            }
+
+            //swap
+            std::swap(arr[finalpos], curr);
+            v.displayArrayS(arr, finalpos, v.write_color);
+        }
     }
 }
 

@@ -38,6 +38,7 @@ int main(int argc, char** argv){
         counting_sort, 
         gravity_sort, 
         pancake_sort, 
+        cycle_sort, 
         bogo_sort, 
         stalin_sort, 
     };
@@ -58,7 +59,8 @@ int main(int argc, char** argv){
         "Bucket Sort(50 buckets)", 
         "Counting Sort", 
         "Gravity Sort", 
-        "Pancake Sort", 
+        "Pancake Sort", //16
+        "Cycle Sort", 
         "Bogosort", 
         "Stalin Sort", 
     };
@@ -80,7 +82,8 @@ int main(int argc, char** argv){
         resosize, 
         resosize, 
         resosize/2, 
-        resosize/8, 
+        resosize/8, //16
+        resosize/4, 
         6, 
         resosize, 
     };
@@ -101,6 +104,7 @@ int main(int argc, char** argv){
         0, 
         0, 
         0, 
+        0, //16
         0, 
         0, 
         0, 
@@ -219,9 +223,9 @@ void run_sort_anim(Visualizer& v, std::vector<int>& arr, void (*alg)(Visualizer&
 }
 
 void shuffle_array_anim(Visualizer& v, std::vector<int>& arr, int size){
-    //temporarily set to 4
+    //temporarily set to 8
     int tmp = v.displayIndicesMaxCount;
-    v.displayIndicesMaxCount = 4;
+    v.displayIndicesMaxCount = 8;
     //make new shuffled array
     std::vector<int> new_arr;
     new_arr.reserve(size);

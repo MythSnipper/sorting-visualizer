@@ -53,6 +53,8 @@ void gravity_sort(Visualizer& v, std::vector<int>& arr);
 void pancake_sort(Visualizer& v, std::vector<int>& arr);
 void pancake_sort_flip(Visualizer& v, std::vector<int>& arr, int start, int end);
 
+void cycle_sort(Visualizer& v, std::vector<int>& arr);
+
 
 
 
