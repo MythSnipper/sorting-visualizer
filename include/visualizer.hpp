@@ -55,7 +55,7 @@ class Visualizer{
         //store indices with either read or write, 0 read 1 write
         std::vector<std::pair<int, bool>> displayIndices;
         //if above vector has displayIndicesMaxCount elements, display one frame
-        int displayIndicesMaxCount = 4;
+        int displayIndicesMaxCount = 1;
 
 
         void init();

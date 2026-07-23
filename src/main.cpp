@@ -3,7 +3,7 @@
 int main(int argc, char** argv){
     //settings
     std::string title = "Sorting Visualizer";
-    int WINDOW_WIDTH = 1320;
+    int WINDOW_WIDTH = 1900;
     int WINDOW_HEIGHT = 720;
 
     Visualizer v;
@@ -39,6 +39,7 @@ int main(int argc, char** argv){
         gravity_sort, 
         pancake_sort, 
         cycle_sort, 
+        patience_sort, 
         bogo_sort, 
         stalin_sort, 
     };
@@ -61,6 +62,7 @@ int main(int argc, char** argv){
         "Gravity Sort", 
         "Pancake Sort", //16
         "Cycle Sort", 
+        "Patience Sort", 
         "Bogosort", 
         "Stalin Sort", 
     };
@@ -84,6 +86,7 @@ int main(int argc, char** argv){
         resosize/2, 
         resosize/8, //16
         resosize/4, 
+        resosize, 
         6, 
         resosize, 
     };
@@ -108,6 +111,7 @@ int main(int argc, char** argv){
         0, 
         0, 
         0, 
+        0, 
     };
     int numAlgsImplemented = sizeof(algs)/sizeof(algs[0]);
 
@@ -121,7 +125,7 @@ int main(int argc, char** argv){
 
     arr = generateShuffledArray(use_recommended_inputsize ? algs_inputsize[0] : algs_inputsize_fixed);
     do{
-        for(int i=0;i<numAlgsImplemented;i++){
+        for(int i=18;i<numAlgsImplemented;i++){
             //set tick rate
             v.tickrate = use_recommended_tickrate ? algs_tickrate[i] : algs_tickrate_fixed; //0 is very fast
 

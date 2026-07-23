@@ -557,7 +557,6 @@ void radix_sort_MSD(Visualizer& v, std::vector<int>& arr, int base){
     }
     radix_sort_MSD_helper(v, arr, base, 0, n, divisor);
 }
-//sorts section where startI <= i < endI
 void radix_sort_MSD_helper(Visualizer& v, std::vector<int>& arr, int base, int startI, int endI, int divisor){
     int n = endI-startI;
     if(base < 2 || divisor <= 0 || startI < 0 || endI < startI || endI > arr.size() || n < 2)return;
@@ -614,46 +613,57 @@ void radix_sort_MSD_base4(Visualizer& v, std::vector<int>& arr){
     radix_sort_MSD(v, arr, 4);
 }
 
+
 void bucket_sort_helper(Visualizer& v, std::vector<int>& arr, int NumOfBuckets){
     int n = arr.size();
     if(n < 2 || NumOfBuckets <= 0)return;
-    //find max value
+    //find min and max value
+    int min = arr[0];
     int max = arr[0];
     v.displayArrayS(arr, 0, v.read_color);
     for(int i=1;i<n;i++){
         max = (arr[i]>max) ? arr[i] : max;
+        min = (arr[i]<min) ? arr[i] : min;
         v.displayArrayS(arr, i, v.read_color);
     }
 
+    int range = max-min+1;
+
+
+    NumOfBuckets = (NumOfBuckets < range) ? NumOfBuckets : range;
     //bucket size
-    int bucketSize = max / NumOfBuckets;
+    int bucketSize = (range + NumOfBuckets - 1) / NumOfBuckets;
 
     //bucketing step
     std::vector<int> occurances(NumOfBuckets+1);
     std::vector<int> positions(NumOfBuckets+1);
 
+    //count values in each bucket
     for(int i=0;i<n;i++){
-        occurances[arr[i] / bucketSize]++;
+        int bucket = bucket_sort_getbucket(arr[i], min, bucketSize, NumOfBuckets);
+        occurances[bucket]++;
         v.displayArrayS(arr, i, v.read_color);
     }
 
-    int sum = 0;
-    for(int i=0;i<NumOfBuckets+1;i++){
-        positions[i] = sum;
-        sum += occurances[i];
+    positions[0] = 0;
+    for(int i=0;i<NumOfBuckets;i++){
+        positions[i+1] = positions[i] + occurances[i];
     }
 
     //copy positions to occurances so sorting uses occurances array
-    for(int i=0;i<positions.size();i++){
+    for(int i=0;i<NumOfBuckets;i++){
         occurances[i] = positions[i];
     }
 
     //construct aux array, reuse occurances as positions
     std::vector<int> aux(n);
 
+    //place values in buckets
     for(int i=0;i<n;i++){
-        aux[occurances[arr[i] / bucketSize]] = arr[i];
-        occurances[arr[i] / bucketSize]++;
+        int bucket = bucket_sort_getbucket(arr[i], min, bucketSize, NumOfBuckets);
+        int dest = occurances[bucket];
+        aux[dest] = arr[i];
+        occurances[bucket]++;
         v.displayArrayS(arr, i, v.read_color);
     }
 
@@ -673,6 +683,10 @@ void bucket_sort_helper(Visualizer& v, std::vector<int>& arr, int NumOfBuckets){
         bucket_sort_sortbucket(v, arr, positions[i], positions[i+1]);
     }
     bucket_sort_sortbucket(v, arr, positions[NumOfBuckets], n);
+}
+int bucket_sort_getbucket(int value, int min, int bucketSize, int NumOfBuckets){
+    int bucket = (value - min) / bucketSize;
+    return (bucket >= NumOfBuckets) ? NumOfBuckets - 1 : bucket;
 }
 void bucket_sort_sortbucket(Visualizer& v, std::vector<int>& arr, int startI, int endI){
     int n = endI-startI;
@@ -741,7 +755,7 @@ void counting_sort(Visualizer& v, std::vector<int>& arr){
     for(int i=0;i<n;i++){
         aux[occurances[arr[i]]] = arr[i];
         occurances[arr[i]]++;
-        v.displayArrayS(arr, i, v.read_color);
+        v.displayArrayS(aux, i, v.read_color);
     }
 
     //copy aux array to array
@@ -900,6 +914,82 @@ void cycle_sort(Visualizer& v, std::vector<int>& arr){
             v.displayArrayS(arr, finalpos, v.write_color);
         }
     }
+}
+
+void patience_sort(Visualizer& v, std::vector<int>& arr){
+    int n = arr.size();
+    if(n < 2)return;
+
+    std::vector<std::vector<int>> piles;
+
+    //build piles
+    for(int i=0;i<n;i++){
+        int num = arr[i];
+        v.displayArrayS(arr, i, v.read_color);
+        
+        //find leftmost pile top that is greater than num
+        bool found = false;
+        for(int j=0;j<piles.size();j++){
+            if(piles[j].back() > num){
+                //insert
+                piles[j].push_back(num);
+
+                found = true;
+                break;
+            }
+        }
+        //if not found make new pile
+        if(!found){
+            piles.push_back({num});
+        }
+
+    }
+
+    //display arr as a concatenation of all piles
+    int arrI = 0;
+    for(std::vector<int>& pile : piles){
+        for(int card : pile){
+            arr[arrI] = card;
+            arrI++;
+        }
+    }
+    v.displayArray(arr);
+
+    //repeatedly take smallest top card until there are none left
+    for(int i=0;i<n;i++){
+        
+        if(piles.empty())break;
+        //find pile with smallest top card
+        int topI = 0;
+        for(int j=1;j<piles.size();j++){
+            topI = (piles[j].back() < piles[topI].back()) ? j : topI;
+        }
+
+        arr[i] = piles[topI].back();
+        v.displayArrayS(arr, i, v.write_color);
+
+        piles[topI].pop_back();
+        if(piles[topI].empty()){ //if pile is empty erase the pile
+            piles.erase(piles.begin() + topI);
+        }
+
+
+        //display arr as a concatenation of all piles
+        int arrI = i+1;
+        for(std::vector<int>& pile : piles){
+            for(int card : pile){
+                arr[arrI] = card;
+                arrI++;
+            }
+        }
+        v.displayArray(arr);
+    }
+
+}
+
+void exchange_sort(Visualizer& v, std::vector<int>& arr){
+
+
 }
 
 
